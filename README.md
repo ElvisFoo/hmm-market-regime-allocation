@@ -10,8 +10,6 @@ The research notebook is also exported as an HTML report for easier reading:
 
 [Open the rendered project report](https://elvisfoo.github.io/hmm-market-regime-allocation/)
 
-If the link is not active yet, GitHub Pages still needs to be enabled from the repository settings using the `main` branch and `/docs` folder.
-
 ## Project Motivation
 
 Markets behave differently across time. A portfolio that performs well in a calm growth environment may behave very differently during a crisis, inflation shock, or high-volatility regime.
