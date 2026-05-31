@@ -4,6 +4,14 @@ This project explores whether Hidden Markov Models (HMMs) can be used to identif
 
 The goal is not simply to maximize returns, but to investigate whether regime-aware allocation can improve risk-adjusted performance, reduce drawdowns, and provide a more structured way to think about changing market conditions.
 
+## View Rendered Report
+
+The research notebook is also exported as an HTML report for easier reading:
+
+[Open the rendered project report](https://elvisfoo.github.io/hmm-market-regime-allocation/)
+
+If the link is not active yet, GitHub Pages still needs to be enabled from the repository settings using the `main` branch and `/docs` folder.
+
 ## Project Motivation
 
 Markets behave differently across time. A portfolio that performs well in a calm growth environment may behave very differently during a crisis, inflation shock, or high-volatility regime.
@@ -50,7 +58,7 @@ The strategy will be evaluated using:
 
 ## Current Status
 
-This project is currently in the initial planning and setup stage.
+The project currently covers project motivation, asset universe design, data sourcing, feature engineering, HMM intuition, and candidate regime model training.
 
 ## Disclaimer
 

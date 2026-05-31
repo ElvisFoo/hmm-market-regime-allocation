@@ -10,3 +10,8 @@ PROJECT_STRUCTURE.md
 data/raw/
 data/processed/
 
+# Local Jupyter export/runtime files
+.jupyter_config/
+.jupyter_runtime/
+docs/*_executed.ipynb
+
