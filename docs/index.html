@@ -7820,6 +7820,9 @@ a.anchor-link {
 <li><a href="#6.-Regime-Interpretation">Regime Interpretation</a></li>
 <li><a href="#7.-Strategy-Design">Strategy Design</a></li>
 <li><a href="#8.-Walk-Forward-Backtest">Walk-Forward Backtest</a></li>
+<li><a href="#9.-Results-and-Discussion">Results and Discussion</a></li>
+<li><a href="#10.-Limitations">Limitations</a></li>
+<li><a href="#11.-Conclusion">Conclusion</a></li>
 </ol>
 </div>
 </div>
@@ -15345,6 +15348,875 @@ Held-out test period metrics from 2022 onward
 <h3 id="What-this-backtest-does-and-does-not-prove">What this backtest does and does not prove<a class="anchor-link" href="#What-this-backtest-does-and-does-not-prove">¶</a></h3><p>This section gives a more realistic historical simulation than the earlier full-sample regime diagnostics. The HMM is refit month by month, state labels are reassigned using past data only, and realised performance is measured from daily returns after the signal date.</p>
 <p>However, this is still a research backtest, not proof that the strategy will work live. The allocation policy was designed after studying the project data, so the results should be interpreted as evidence from a disciplined historical simulation rather than a production trading claim.</p>
 <p>The next step is to interpret the benchmark comparison carefully: where the regime strategy helped, where it failed, whether drawdowns improved, and whether the improvement is meaningful after costs.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=966fd63c">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="9.-Results-and-Discussion">9. Results and Discussion<a class="anchor-link" href="#9.-Results-and-Discussion">¶</a></h2><p>Part 8 built the walk-forward backtest. This section interprets what happened.</p>
+<p>The goal is not to make the strategy look good by cherry-picking a favourable view. The goal is to ask whether the regime signal actually changed portfolio decisions, whether those decisions helped during difficult markets, and where the model still needs improvement.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=149d6e79">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="How-to-read-the-results">How to read the results<a class="anchor-link" href="#How-to-read-the-results">¶</a></h3><p>There are two evaluation windows in the backtest:</p>
+<ul>
+<li><strong>Full walk-forward simulation:</strong> starts in January 2019. This includes the validation-era period from 2019 to 2021 and the held-out test period from 2022 onward.</li>
+<li><strong>Held-out test period:</strong> starts in January 2022. This is the cleaner evaluation window because it comes after the train and validation periods used earlier in the project.</li>
+</ul>
+<p>This distinction matters because a strategy can look useful in one market environment and weaker in another. For this project, the held-out test period is especially important because it includes the 2022 inflation and rate-hiking shock, where a static stock-bond portfolio struggled.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ae134c29">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Headline-performance-comparison">Headline performance comparison<a class="anchor-link" href="#Headline-performance-comparison">¶</a></h3><p>The next table places the full walk-forward and held-out test-period metrics side by side. This is mostly a readability step: the underlying calculations were already done in Part 8.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f78a42eb">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_results_summary</span><span class="p">(</span><span class="n">metrics_by_period</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Combine performance tables from different evaluation windows."""</span>
+    <span class="n">summary_parts</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">period_name</span><span class="p">,</span> <span class="n">metrics_table</span> <span class="ow">in</span> <span class="n">metrics_by_period</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">period_metrics</span> <span class="o">=</span> <span class="n">metrics_table</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">period_metrics</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"period"</span><span class="p">,</span> <span class="n">period_name</span><span class="p">)</span>
+        <span class="n">summary_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">period_metrics</span><span class="o">.</span><span class="n">reset_index</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">summary_parts</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="n">results_summary</span> <span class="o">=</span> <span class="n">build_results_summary</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"Full walk-forward: 2019 onward"</span><span class="p">:</span> <span class="n">walk_forward_metrics</span><span class="p">,</span>
+        <span class="s2">"Held-out test period: 2022 onward"</span><span class="p">:</span> <span class="n">test_period_metrics</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">results_summary_display</span> <span class="o">=</span> <span class="n">results_summary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">percentage_columns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"total_return"</span><span class="p">,</span>
+    <span class="s2">"annualized_return"</span><span class="p">,</span>
+    <span class="s2">"annualized_volatility"</span><span class="p">,</span>
+    <span class="s2">"max_drawdown"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Format returns and risk measures as percentages so the table is easier to read.</span>
+<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">percentage_columns</span><span class="p">:</span>
+    <span class="n">results_summary_display</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">results_summary_display</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">results_summary_display</span><span class="p">[</span><span class="s2">"sharpe_ratio"</span><span class="p">]</span> <span class="o">=</span> <span class="n">results_summary_display</span><span class="p">[</span><span class="s2">"sharpe_ratio"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">results_summary_display</span><span class="p">[</span><span class="s2">"calmar_ratio"</span><span class="p">]</span> <span class="o">=</span> <span class="n">results_summary_display</span><span class="p">[</span><span class="s2">"calmar_ratio"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">results_summary_display</span> <span class="o">=</span> <span class="n">results_summary_display</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"strategy"</span><span class="p">:</span> <span class="s2">"strategy"</span><span class="p">,</span>
+        <span class="s2">"total_return"</span><span class="p">:</span> <span class="s2">"total return"</span><span class="p">,</span>
+        <span class="s2">"annualized_return"</span><span class="p">:</span> <span class="s2">"annualized return"</span><span class="p">,</span>
+        <span class="s2">"annualized_volatility"</span><span class="p">:</span> <span class="s2">"annualized volatility"</span><span class="p">,</span>
+        <span class="s2">"sharpe_ratio"</span><span class="p">:</span> <span class="s2">"Sharpe ratio"</span><span class="p">,</span>
+        <span class="s2">"max_drawdown"</span><span class="p">:</span> <span class="s2">"max drawdown"</span><span class="p">,</span>
+        <span class="s2">"calmar_ratio"</span><span class="p">:</span> <span class="s2">"Calmar ratio"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">results_summary_display</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>strategy</th>
+<th>period</th>
+<th>total return</th>
+<th>annualized return</th>
+<th>annualized volatility</th>
+<th>Sharpe ratio</th>
+<th>max drawdown</th>
+<th>Calmar ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>HMM regime strategy</td>
+<td>Full walk-forward: 2019 onward</td>
+<td>142.7%</td>
+<td>12.7%</td>
+<td>12.9%</td>
+<td>1.00</td>
+<td>-23.5%</td>
+<td>0.54</td>
+</tr>
+<tr>
+<th>1</th>
+<td>SPY buy-and-hold</td>
+<td>Full walk-forward: 2019 onward</td>
+<td>237.7%</td>
+<td>17.9%</td>
+<td>19.5%</td>
+<td>0.94</td>
+<td>-33.7%</td>
+<td>0.53</td>
+</tr>
+<tr>
+<th>2</th>
+<td>60/40 SPY/TLT</td>
+<td>Full walk-forward: 2019 onward</td>
+<td>103.2%</td>
+<td>10.1%</td>
+<td>12.5%</td>
+<td>0.83</td>
+<td>-27.7%</td>
+<td>0.36</td>
+</tr>
+<tr>
+<th>3</th>
+<td>HMM regime strategy</td>
+<td>Held-out test period: 2022 onward</td>
+<td>62.7%</td>
+<td>11.7%</td>
+<td>12.8%</td>
+<td>0.93</td>
+<td>-23.0%</td>
+<td>0.51</td>
+</tr>
+<tr>
+<th>4</th>
+<td>SPY buy-and-hold</td>
+<td>Held-out test period: 2022 onward</td>
+<td>68.9%</td>
+<td>12.7%</td>
+<td>17.6%</td>
+<td>0.77</td>
+<td>-24.5%</td>
+<td>0.52</td>
+</tr>
+<tr>
+<th>5</th>
+<td>60/40 SPY/TLT</td>
+<td>Held-out test period: 2022 onward</td>
+<td>18.5%</td>
+<td>4.0%</td>
+<td>12.9%</td>
+<td>0.36</td>
+<td>-26.8%</td>
+<td>0.15</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1402e3e7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The headline result is mixed in a useful way.</p>
+<p>Over the full walk-forward simulation, the HMM regime strategy earns a lower annualized return than SPY, about <strong>12.7%</strong> versus <strong>17.9%</strong>, so it is not the highest-return strategy. However, it also has lower annualized volatility, about <strong>12.9%</strong> versus <strong>19.5%</strong>, and a smaller maximum drawdown, about <strong>-23.5%</strong> versus <strong>-33.7%</strong>. Its Sharpe ratio is slightly higher than SPY, about <strong>1.00</strong> versus <strong>0.94</strong>.</p>
+<p>The held-out test period tells a similar risk-aware story. From 2022 onward, the HMM strategy earns about <strong>11.7%</strong> annualized, slightly below SPY's <strong>12.7%</strong>, but with lower volatility, about <strong>12.8%</strong> versus <strong>17.6%</strong>. Its Sharpe ratio is higher, about <strong>0.93</strong> versus <strong>0.77</strong>. Compared with the static 60/40 SPY/TLT benchmark, the difference is more obvious: the HMM strategy avoids much of the damage from the 2022 stock-bond selloff, where the 60/40 benchmark has only about <strong>4.0%</strong> annualized return and a Sharpe ratio of about <strong>0.36</strong> in the held-out period.</p>
+<p>So the current evidence does not say, "this model beats SPY on raw return." A more accurate conclusion is: <strong>the regime strategy improved the risk-adjusted path, especially versus static diversification, but it did not eliminate drawdowns or dominate SPY on absolute return.</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3c1e0117">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Did-the-regime-signal-change-decisions?">Did the regime signal change decisions?<a class="anchor-link" href="#Did-the-regime-signal-change-decisions?">¶</a></h3><p>A regime model only adds practical value if it leads to different portfolio decisions from a static benchmark. Otherwise, it is just a complicated explanation layered on top of a simple allocation.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5df05e17">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">signal_frequency_display</span> <span class="o">=</span> <span class="n">walk_forward_regime_summary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">signal_frequency_display</span><span class="p">[</span><span class="s2">"share_of_signals"</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_frequency_display</span><span class="p">[</span><span class="s2">"share_of_signals"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+
+<span class="n">allocation_summary_display</span> <span class="o">=</span> <span class="n">walk_forward_average_weights</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">allocation_summary_display</span><span class="p">[</span><span class="s2">"average_weight"</span><span class="p">]</span> <span class="o">=</span> <span class="n">allocation_summary_display</span><span class="p">[</span><span class="s2">"average_weight"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Walk-forward regime signal frequency"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">signal_frequency_display</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Average walk-forward target weights"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">allocation_summary_display</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Walk-forward regime signal frequency
+Average walk-forward target weights
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>months</th>
+<th>share_of_signals</th>
+</tr>
+<tr>
+<th>most_likely_regime</th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>Resilient risk-on</th>
+<td>58</td>
+<td>64.4%</td>
+</tr>
+<tr>
+<th>Stress</th>
+<td>16</td>
+<td>17.8%</td>
+</tr>
+<tr>
+<th>Policy-supported recovery</th>
+<td>16</td>
+<td>17.8%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>average_weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>SPY</th>
+<td>62.9%</td>
+</tr>
+<tr>
+<th>TLT</th>
+<td>13.6%</td>
+</tr>
+<tr>
+<th>GLD</th>
+<td>15.0%</td>
+</tr>
+<tr>
+<th>SHY</th>
+<td>8.6%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a6561bc6">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The walk-forward model does change its behaviour. Across the monthly signals, it assigns <strong>58 months</strong> to resilient risk-on, <strong>16 months</strong> to policy-supported recovery, and <strong>16 months</strong> to stress. The average resulting allocation is about <strong>62.9% SPY</strong>, <strong>13.6% TLT</strong>, <strong>15.0% GLD</strong>, and <strong>8.6% SHY</strong>.</p>
+<p>That means the strategy is not permanently defensive. Most of the time, it still behaves like an equity-led portfolio. The regime component mainly matters when the model moves into stress and cuts SPY exposure from the 70-75% range toward 25%. This is exactly where the strategy should add value if the regime signal is useful.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=623c277c">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Stress-episode-diagnostics">Stress episode diagnostics<a class="anchor-link" href="#Stress-episode-diagnostics">¶</a></h3><p>The aggregate metrics are helpful, but they do not explain <em>why</em> the strategy worked or failed. The next tables inspect specific stress episodes.</p>
+<p>The first table compares returns and maximum drawdowns during selected periods. The second table shows what regimes the walk-forward model was signalling and what average allocation it used during those same periods.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a50d3cb9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">stress_episodes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">"episode"</span><span class="p">:</span> <span class="s2">"COVID crash"</span><span class="p">,</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="s2">"2020-02-19"</span><span class="p">,</span>
+        <span class="s2">"end"</span><span class="p">:</span> <span class="s2">"2020-03-23"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"episode"</span><span class="p">:</span> <span class="s2">"COVID rebound"</span><span class="p">,</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="s2">"2020-03-24"</span><span class="p">,</span>
+        <span class="s2">"end"</span><span class="p">:</span> <span class="s2">"2020-04-30"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"episode"</span><span class="p">:</span> <span class="s2">"2022 first half"</span><span class="p">,</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="s2">"2022-01-03"</span><span class="p">,</span>
+        <span class="s2">"end"</span><span class="p">:</span> <span class="s2">"2022-06-30"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"episode"</span><span class="p">:</span> <span class="s2">"2022 September selloff"</span><span class="p">,</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="s2">"2022-09-01"</span><span class="p">,</span>
+        <span class="s2">"end"</span><span class="p">:</span> <span class="s2">"2022-09-30"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"episode"</span><span class="p">:</span> <span class="s2">"2022 full year"</span><span class="p">,</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="s2">"2022-01-03"</span><span class="p">,</span>
+        <span class="s2">"end"</span><span class="p">:</span> <span class="s2">"2022-12-30"</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">summarize_stress_episode</span><span class="p">(</span><span class="n">episode</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Summarize returns, drawdowns, signals, and weights for one stress period."""</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">episode</span><span class="p">[</span><span class="s2">"start"</span><span class="p">])</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">episode</span><span class="p">[</span><span class="s2">"end"</span><span class="p">])</span>
+
+    <span class="n">episode_returns</span> <span class="o">=</span> <span class="n">walk_forward_daily_returns</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+    <span class="n">episode_total_returns</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">episode_returns</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">episode_max_drawdowns</span> <span class="o">=</span> <span class="n">episode_returns</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">calculate_max_drawdown</span><span class="p">)</span>
+
+    <span class="n">execution_months</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">period_range</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">),</span> <span class="n">end</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">"M"</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
+    <span class="n">episode_signals</span> <span class="o">=</span> <span class="n">walk_forward_signals</span><span class="p">[</span>
+        <span class="n">walk_forward_signals</span><span class="p">[</span><span class="s2">"execution_month"</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">))</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">execution_months</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">regime_mix</span> <span class="o">=</span> <span class="n">episode_signals</span><span class="p">[</span><span class="s2">"most_likely_regime"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="n">regime_mix_text</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">regime</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">regime</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">regime_mix</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="n">average_weights</span> <span class="o">=</span> <span class="n">episode_signals</span><span class="p">[</span><span class="n">ASSET_COLUMNS</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="n">performance_row</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"episode"</span><span class="p">:</span> <span class="n">episode</span><span class="p">[</span><span class="s2">"episode"</span><span class="p">],</span>
+        <span class="s2">"start"</span><span class="p">:</span> <span class="n">start</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span>
+        <span class="s2">"end"</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="n">signal_row</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"episode"</span><span class="p">:</span> <span class="n">episode</span><span class="p">[</span><span class="s2">"episode"</span><span class="p">],</span>
+        <span class="s2">"regime signals"</span><span class="p">:</span> <span class="n">regime_mix_text</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">strategy_name</span> <span class="ow">in</span> <span class="n">walk_forward_daily_returns</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">performance_row</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">strategy_name</span><span class="si">}</span><span class="s2"> return"</span><span class="p">]</span> <span class="o">=</span> <span class="n">episode_total_returns</span><span class="p">[</span><span class="n">strategy_name</span><span class="p">]</span>
+        <span class="n">performance_row</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">strategy_name</span><span class="si">}</span><span class="s2"> max drawdown"</span><span class="p">]</span> <span class="o">=</span> <span class="n">episode_max_drawdowns</span><span class="p">[</span><span class="n">strategy_name</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">asset</span> <span class="ow">in</span> <span class="n">ASSET_COLUMNS</span><span class="p">:</span>
+        <span class="n">signal_row</span><span class="p">[</span><span class="sa">f</span><span class="s2">"average </span><span class="si">{</span><span class="n">asset</span><span class="si">}</span><span class="s2"> weight"</span><span class="p">]</span> <span class="o">=</span> <span class="n">average_weights</span><span class="p">[</span><span class="n">asset</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">performance_row</span><span class="p">,</span> <span class="n">signal_row</span>
+
+
+<span class="n">performance_rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">signal_rows</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="n">stress_episodes</span><span class="p">:</span>
+    <span class="n">performance_row</span><span class="p">,</span> <span class="n">signal_row</span> <span class="o">=</span> <span class="n">summarize_stress_episode</span><span class="p">(</span><span class="n">episode</span><span class="p">)</span>
+    <span class="n">performance_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">performance_row</span><span class="p">)</span>
+    <span class="n">signal_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">signal_row</span><span class="p">)</span>
+
+<span class="n">stress_episode_performance</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">performance_rows</span><span class="p">)</span>
+<span class="n">stress_episode_signals</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">signal_rows</span><span class="p">)</span>
+
+<span class="n">stress_episode_performance_display</span> <span class="o">=</span> <span class="n">stress_episode_performance</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">stress_episode_performance_display</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"return"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">column</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"max drawdown"</span><span class="p">):</span>
+        <span class="n">stress_episode_performance_display</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">stress_episode_performance_display</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">stress_episode_signals_display</span> <span class="o">=</span> <span class="n">stress_episode_signals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">stress_episode_signals_display</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"average"</span><span class="p">):</span>
+        <span class="n">stress_episode_signals_display</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">stress_episode_signals_display</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">value</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Stress episode performance"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">stress_episode_performance_display</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Stress episode signals and average weights"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">stress_episode_signals_display</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Stress episode performance
+Stress episode signals and average weights
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>episode</th>
+<th>start</th>
+<th>end</th>
+<th>HMM regime strategy return</th>
+<th>HMM regime strategy max drawdown</th>
+<th>SPY buy-and-hold return</th>
+<th>SPY buy-and-hold max drawdown</th>
+<th>60/40 SPY/TLT return</th>
+<th>60/40 SPY/TLT max drawdown</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>COVID crash</td>
+<td>2020-02-19</td>
+<td>2020-03-23</td>
+<td>-23.2%</td>
+<td>-23.5%</td>
+<td>-33.4%</td>
+<td>-33.7%</td>
+<td>-15.9%</td>
+<td>-18.5%</td>
+</tr>
+<tr>
+<th>1</th>
+<td>COVID rebound</td>
+<td>2020-03-24</td>
+<td>2020-04-30</td>
+<td>15.9%</td>
+<td>-2.2%</td>
+<td>30.3%</td>
+<td>-5.9%</td>
+<td>16.5%</td>
+<td>-3.3%</td>
+</tr>
+<tr>
+<th>2</th>
+<td>2022 first half</td>
+<td>2022-01-03</td>
+<td>2022-06-30</td>
+<td>-15.5%</td>
+<td>-17.0%</td>
+<td>-20.0%</td>
+<td>-23.0%</td>
+<td>-20.6%</td>
+<td>-22.5%</td>
+</tr>
+<tr>
+<th>3</th>
+<td>2022 September selloff</td>
+<td>2022-09-01</td>
+<td>2022-09-30</td>
+<td>-7.8%</td>
+<td>-10.1%</td>
+<td>-9.2%</td>
+<td>-12.7%</td>
+<td>-8.8%</td>
+<td>-9.6%</td>
+</tr>
+<tr>
+<th>4</th>
+<td>2022 full year</td>
+<td>2022-01-03</td>
+<td>2022-12-30</td>
+<td>-15.7%</td>
+<td>-23.0%</td>
+<td>-18.2%</td>
+<td>-24.5%</td>
+<td>-23.3%</td>
+<td>-26.8%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>episode</th>
+<th>regime signals</th>
+<th>average SPY weight</th>
+<th>average TLT weight</th>
+<th>average GLD weight</th>
+<th>average SHY weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>COVID crash</td>
+<td>Resilient risk-on: 2</td>
+<td>70.0%</td>
+<td>10.0%</td>
+<td>15.0%</td>
+<td>5.0%</td>
+</tr>
+<tr>
+<th>1</th>
+<td>COVID rebound</td>
+<td>Resilient risk-on: 1; Stress: 1</td>
+<td>47.5%</td>
+<td>17.5%</td>
+<td>20.0%</td>
+<td>15.0%</td>
+</tr>
+<tr>
+<th>2</th>
+<td>2022 first half</td>
+<td>Policy-supported recovery: 5; Stress: 1</td>
+<td>66.7%</td>
+<td>16.7%</td>
+<td>8.3%</td>
+<td>8.3%</td>
+</tr>
+<tr>
+<th>3</th>
+<td>2022 September selloff</td>
+<td>Resilient risk-on: 1</td>
+<td>70.0%</td>
+<td>10.0%</td>
+<td>15.0%</td>
+<td>5.0%</td>
+</tr>
+<tr>
+<th>4</th>
+<td>2022 full year</td>
+<td>Policy-supported recovery: 5; Stress: 5; Resil...</td>
+<td>53.3%</td>
+<td>18.3%</td>
+<td>15.0%</td>
+<td>13.3%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c46b6865">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The stress diagnostics show a more nuanced picture than the headline metrics.</p>
+<p>During the <strong>COVID crash</strong> from 19 February 2020 to 23 March 2020, the HMM strategy lost about <strong>-23.2%</strong>, compared with <strong>-33.4%</strong> for SPY and <strong>-15.9%</strong> for 60/40. This is both good and bad. It reduced the equity crash relative to SPY, but it did not protect as well as the static 60/40 portfolio during the sharpest part of the crash. The reason is timing: the walk-forward signals during that episode were still resilient risk-on, so the strategy was still holding about <strong>70% SPY</strong>.</p>
+<p>During the <strong>COVID rebound</strong> from 24 March 2020 to 30 April 2020, the strategy gained about <strong>15.9%</strong>, while SPY gained about <strong>30.3%</strong>. This is the other side of regime lag. Once the model becomes more defensive, it can miss part of a fast rebound.</p>
+<p>The <strong>2022 full-year</strong> result is more encouraging for this project. The HMM strategy lost about <strong>-15.7%</strong>, compared with <strong>-18.2%</strong> for SPY and <strong>-23.3%</strong> for 60/40. This matters because 2022 was exactly the type of environment where static stock-bond diversification struggled. The model was not perfect, but it did reduce the damage from the stock-bond selloff.</p>
+<p>The weaker point is that the strategy still suffered a meaningful drawdown in 2022. In the first half of 2022, the model signalled policy-supported recovery in <strong>5</strong> of the <strong>6</strong> months, so the average SPY weight was still about <strong>66.7%</strong>. It only moved more decisively into stress later. This suggests the problem was not only the asset allocation rule; the monthly regime signal was also slow to react to an inflation and rate-hiking shock.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e9ed9223">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="What-worked">What worked<a class="anchor-link" href="#What-worked">¶</a></h3><p>The strongest evidence in favour of the strategy is that it improved the risk-adjusted path without becoming permanently defensive. It kept meaningful equity exposure during normal environments, reduced volatility relative to SPY, and performed better than the static 60/40 benchmark in the held-out 2022 onward period.</p>
+<p>The result is especially relevant from a risk analytics standpoint. The strategy is not simply trying to maximize return. It is trying to identify when the return environment becomes dangerous enough to justify reducing equity concentration and diversifying across defensive assets.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f607d4b2">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="What-did-not-work">What did not work<a class="anchor-link" href="#What-did-not-work">¶</a></h3><p>The strategy did not fully solve drawdown control. The maximum drawdown was still about <strong>-23.5%</strong> in the full walk-forward simulation and about <strong>-23.0%</strong> in the held-out test period. That is better than SPY, but still large for a strategy whose purpose is risk-aware allocation.</p>
+<p>The main weakness is timing. A monthly HMM can be late during sudden crashes because it only updates after observing month-end data. The COVID crash is the clearest example. The model also struggled with parts of 2022 because the environment changed from policy-supported recovery into inflation and rate stress. In that situation, long-term Treasuries did not behave like a reliable equity hedge.</p>
+<p>Another limitation is that the HMM probabilities are often very confident. The probability-weighted allocation rule is conceptually clean, but in this version of the model it often behaves close to a hard regime switch. That is not necessarily wrong, but it means the benefit of probability weighting is limited unless future model specifications produce softer regime uncertainty.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=47617875">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Practical-interpretation">Practical interpretation<a class="anchor-link" href="#Practical-interpretation">¶</a></h3><p>The practical use of this model is best understood as a <strong>risk overlay</strong>, not a standalone return engine.</p>
+<p>For a retail investor, the idea is not "the HMM tells me exactly when to buy and sell." A better interpretation is: the model provides a systematic way to ask whether the current environment looks more like a normal risk-taking period, a recovery period, or a stress period. That can support decisions such as reducing equity exposure, increasing diversifiers, or avoiding overconfidence in a static portfolio.</p>
+<p>This is also why the comparison against 60/40 is important. A static diversified portfolio assumes that the same mix is suitable across environments. The 2022 result shows why that assumption can fail. The HMM strategy is useful because it allows the allocation to respond when the underlying regime changes, even though the current implementation still reacts imperfectly.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e0a49979">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="What-should-be-improved-next">What should be improved next<a class="anchor-link" href="#What-should-be-improved-next">¶</a></h3><p>The next step should not be to silently replace the strategy with a better-looking version. A cleaner research process is to treat the current model as the baseline and test improvements as named variants.</p>
+<p>Promising improvements include:</p>
+<ul>
+<li>adding a faster risk overlay, such as a 200-day moving average or volatility trigger, to reduce lag during sudden crashes;</li>
+<li>testing a more defensive stress allocation with lower SPY exposure;</li>
+<li>testing whether stress allocation should use more GLD or SHY and less TLT during inflation/rate-driven stress;</li>
+<li>running allocation sensitivity tests to check whether the results depend too heavily on the exact weights chosen;</li>
+<li>testing transaction cost assumptions such as 0 bps, 5 bps, and 10 bps;</li>
+<li>comparing the current 3-state HMM against alternative 2-state and 4-state specifications in the actual backtest, not just in validation log likelihood.</li>
+</ul>
+<p>These improvements should be evaluated against the baseline strategy, SPY, and 60/40 using the same walk-forward rules. That keeps the project honest: every enhancement has to earn its place rather than being selected only because it looks good after the fact.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bbfbdd08">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="10.-Limitations">10. Limitations<a class="anchor-link" href="#10.-Limitations">¶</a></h2><p>The backtest results are encouraging, but they should be interpreted within clear boundaries. This project is best understood as a structured regime-based risk analytics study, not as a finished trading product.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f35e1936">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="1.-The-backtest-is-historical-evidence,-not-proof-of-future-performance">1. The backtest is historical evidence, not proof of future performance<a class="anchor-link" href="#1.-The-backtest-is-historical-evidence,-not-proof-of-future-performance">¶</a></h3><p>The strategy is tested on historical market data. It shows that the HMM-based allocation rule would have produced a more attractive risk-adjusted path in this sample, especially relative to a static 60/40 portfolio during the 2022 stock-bond selloff.</p>
+<p>That does not prove the same relationship will hold in the future. Market regimes can change, policy responses can change, and the relationships between equities, bonds, gold, and cash-like assets may behave differently in the next stress period.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=91071b4f">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="2.-Major-stress-regimes-are-rare">2. Major stress regimes are rare<a class="anchor-link" href="#2.-Major-stress-regimes-are-rare">¶</a></h3><p>Even though the dataset covers many years, the number of truly important stress episodes is small. The model sees events such as the Global Financial Crisis, the COVID crash, and the 2022 inflation/rate shock, but that is still only a limited set of crisis examples.</p>
+<p>This matters because the strategy's value depends heavily on how it behaves during stress. A few major episodes can strongly influence the results, so the stress-regime conclusions should be treated as useful but uncertain.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=46f29b41">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="3.-Monthly-regime-signals-can-react-slowly">3. Monthly regime signals can react slowly<a class="anchor-link" href="#3.-Monthly-regime-signals-can-react-slowly">¶</a></h3><p>The HMM is trained on monthly features and produces monthly allocation signals. This makes the framework easier to interpret and reduces noise, but it also creates lag.</p>
+<p>The COVID crash is the clearest example. The strategy reduced drawdown relative to SPY, but it was still exposed to the crash because the regime signal could not react instantly to a fast market break. This is an important limitation for any monthly regime model.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d4d25689">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="4.-Regime-labels-and-allocation-weights-require-judgment">4. Regime labels and allocation weights require judgment<a class="anchor-link" href="#4.-Regime-labels-and-allocation-weights-require-judgment">¶</a></h3><p>The HMM does not directly say "risk-on", "recovery", or "stress". It estimates hidden states from the data. The human-readable regime labels are assigned after inspecting asset returns, volatility, drawdowns, macro conditions, frequency, persistence, and historical timing.</p>
+<p>The same is true for the allocation rule. The model identifies regimes, but it does not automatically produce portfolio weights. The weights are transparent and evidence-based, but they still involve judgment. This is acceptable for a research project, as long as the judgment is clearly explained rather than hidden.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bca1b918">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="5.-The-asset-universe-and-implementation-assumptions-are-simplified">5. The asset universe and implementation assumptions are simplified<a class="anchor-link" href="#5.-The-asset-universe-and-implementation-assumptions-are-simplified">¶</a></h3><p>The portfolio uses SPY, TLT, GLD, and SHY because they are liquid, interpretable, and map cleanly to equities, long-duration Treasuries, gold, and short-duration defensive exposure. This makes the project easier to explain, but it also leaves out many possible diversifiers such as international equities, credit, commodities beyond gold, managed futures, sector ETFs, and explicit cash yields.</p>
+<p>The backtest also simplifies real-world implementation. It includes a 5 bps transaction cost assumption, but does not model taxes, exact bid-ask spreads during stress, FX conversion costs, or exact macroeconomic data release calendars.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dfa7dde7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="What-these-limitations-mean">What these limitations mean<a class="anchor-link" href="#What-these-limitations-mean">¶</a></h3><p>These limitations do not invalidate the project. They define what the project can responsibly claim.</p>
+<p>The evidence supports the idea that market and macro signals can identify useful probabilistic regimes, and that those regimes can support a systematic ETF allocation strategy with improved risk-adjusted performance. The evidence does not prove that this is a production-ready strategy or that the same allocation rule will work unchanged in every future market environment.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2d83ab7c">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="11.-Conclusion">11. Conclusion<a class="anchor-link" href="#11.-Conclusion">¶</a></h2><p>This project started with a simple question:</p>
+<blockquote>
+<p>Can market and macroeconomic signals identify probabilistic market regimes, and can those regimes support a systematic ETF allocation strategy that improves risk-adjusted performance and drawdown control compared with static benchmarks?</p>
+</blockquote>
+<p>The evidence from this notebook suggests that the answer is yes, with important boundaries.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bd3c7312">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The project built the full research workflow from end to end. Raw ETF and macroeconomic data were converted into market and macro features, Hidden Markov Models were trained and compared, the selected model's hidden states were interpreted using asset returns and economic conditions, and those regime labels were mapped into a transparent ETF allocation rule.</p>
+<p>The walk-forward backtest then tested the strategy more realistically by refitting the model using only data available up to each rebalance date. This matters because it moves the project beyond a full-sample regime story and into a more disciplined historical simulation.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6438518d">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The main result is not that the HMM strategy maximizes raw return. It does not beat SPY on total return over the full walk-forward period. Instead, its strength is risk-adjusted performance.</p>
+<p>Over the full walk-forward simulation, the HMM regime strategy produced a Sharpe ratio of about <strong>1.00</strong>, slightly above SPY's <strong>0.94</strong>, with lower volatility and a smaller maximum drawdown. In the held-out test period from 2022 onward, the strategy was especially useful relative to the static 60/40 benchmark, which struggled during the stock-bond selloff. This supports the central idea of the project: regime-aware allocation can be valuable because the same static portfolio is not equally suitable in every market environment.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8ac40904">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The model is still imperfect. Monthly signals can lag sudden crashes, regime labels require interpretation, and the allocation rule involves judgment. These limitations are not weaknesses to hide. They are part of what makes the project realistic. A useful risk model should not only produce metrics; it should also make its assumptions, failure modes, and decision rules visible.</p>
+<p>The main value of this project is therefore not that it finds a perfect allocation rule. The value is that it shows how probabilistic regime modelling can turn market and macro data into a disciplined, testable risk allocation framework.</p>
 </div>
 </div>
 </div>
