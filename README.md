@@ -56,7 +56,7 @@ The strategy will be evaluated using:
 
 ## Current Status
 
-The project currently covers project motivation, asset universe design, data sourcing, feature engineering, HMM intuition, and candidate regime model training.
+The project currently covers project motivation, asset universe design, data sourcing, feature engineering, HMM intuition, candidate regime model training, and regime interpretation.
 
 ## Disclaimer
 
