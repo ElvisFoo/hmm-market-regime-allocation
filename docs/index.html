@@ -7818,6 +7818,7 @@ a.anchor-link {
 <li><a href="#4.-Hidden-Markov-Model-Explanation">Hidden Markov Model Explanation</a></li>
 <li><a href="#5.-Regime-Model-Training">Regime Model Training</a></li>
 <li><a href="#6.-Regime-Interpretation">Regime Interpretation</a></li>
+<li><a href="#7.-Strategy-Design">Strategy Design</a></li>
 </ol>
 </div>
 </div>
@@ -8234,7 +8235,7 @@ a.anchor-link {
     <span class="s2">"UNRATE"</span><span class="p">:</span> <span class="s2">"unemployment_rate"</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Project root: </span><span class="si">{</span><span class="n">project_root</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Project folder: </span><span class="si">{</span><span class="n">project_root</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tiingo key available: </span><span class="si">{</span><span class="n">TIINGO_API_KEY</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FRED key available: </span><span class="si">{</span><span class="n">FRED_API_KEY</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Refresh API data: </span><span class="si">{</span><span class="n">REFRESH_DATA</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -8249,7 +8250,7 @@ a.anchor-link {
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child">
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Project root: C:\Users\elvis\OneDrive\Documents\Side projects\regime analysis
+<pre>Project folder: regime analysis
 Tiingo key available: True
 FRED key available: True
 Refresh API data: False
@@ -12717,6 +12718,782 @@ Longest continuous regime runs
 </ul>
 <p>For example, possible labels might include <code>Risk-on / growth</code>, <code>Crisis / defensive stress</code>, or <code>Inflation / rate stress</code>, but the final labels should follow the evidence shown above rather than being assumed in advance.</p>
 <p>This interpretation is descriptive rather than a strategy-performance result. Any claim about portfolio returns, Sharpe ratio, or drawdown should be evaluated separately using the held-out test period and the later walk-forward backtest.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1526d121">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="7.-Strategy-Design">7. Strategy Design<a class="anchor-link" href="#7.-Strategy-Design">¶</a></h2><p>The regime model tells us what market condition the data most likely resembles. It does not automatically tell us how much SPY, TLT, GLD, or SHY to hold. That second step is a portfolio policy decision.</p>
+<p>This distinction is important. The HMM makes the regime identification less dependent on hand-written labels such as "bull market" or "inflation shock". The allocation rule still needs human judgment because a portfolio has objectives and constraints: how much risk to take, whether leverage is allowed, how often to rebalance, and how aggressively to respond to uncertain signals.</p>
+<p>The goal of this section is therefore not to find the perfect allocation. The goal is to define a transparent, defensible, and testable policy that can be evaluated later in the backtest.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5802d2fb">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Evidence-used-for-the-allocation-rule">Evidence used for the allocation rule<a class="anchor-link" href="#Evidence-used-for-the-allocation-rule">¶</a></h3><p>The allocation rule is based mainly on the regime evidence from Part 6, rather than on a separate optimisation exercise.</p>
+<p>The model found three economically interpretable states:</p>
+<ul>
+<li><strong>Regime 0:</strong> SPY had an average monthly return of about <strong>1.40%</strong>, GLD had an average monthly return of about <strong>1.33%</strong>, equity volatility was below average, and macro stress indicators such as VIX and credit spreads were lower than usual. This supports a high-equity allocation with a meaningful gold sleeve.</li>
+<li><strong>Regime 1:</strong> SPY still had a strong average monthly return of about <strong>1.20%</strong>, equity momentum was the strongest of the three regimes, and the macro profile looked more policy-supported. This supports the highest SPY weight, with some TLT retained as a diversifier.</li>
+<li><strong>Regime 2:</strong> SPY had an average monthly return of about <strong>-0.36%</strong>, annualised equity volatility was much higher at about <strong>24.65%</strong>, drawdowns were deeper, and VIX/credit stress were elevated. This supports cutting equity exposure and spreading defensive exposure across TLT, GLD, and SHY.</li>
+</ul>
+<p>This is still a human-designed allocation policy. The important point is that the weights are chosen from evidence observed in the regime interpretation, written down before the backtest, and kept simple enough to audit.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4424adb7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Strategy-constraints">Strategy constraints<a class="anchor-link" href="#Strategy-constraints">¶</a></h3><p>The strategy is intentionally constrained before any performance backtest is run.</p>
+<ul>
+<li><strong>Long-only:</strong> no short positions.</li>
+<li><strong>Fully invested:</strong> weights across SPY, TLT, GLD, and SHY sum to 100%.</li>
+<li><strong>No leverage:</strong> total portfolio exposure is capped at 100%.</li>
+<li><strong>Monthly decisions:</strong> the strategy updates at the same frequency as the regime features.</li>
+<li><strong>Predefined regime weights:</strong> the weights are chosen from the regime interpretation, not from test-period performance.</li>
+<li><strong>Execution lag in the later backtest:</strong> the allocation signal formed at month-end should only be applied from the next month onward to avoid look-ahead bias.</li>
+</ul>
+<p>These constraints make the rule easier to defend. If the strategy performs well later, the result is less likely to come from hidden leverage, excessive trading, or fitting the test period.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=275b4a78">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Define-regime-labels-and-base-allocations">Define regime labels and base allocations<a class="anchor-link" href="#Define-regime-labels-and-base-allocations">¶</a></h3><p>The regime labels below come from the evidence in Part 6. They are not imposed before training the model.</p>
+<p>The weights are deliberately simple. They are not optimised to maximise historical return. Instead, they express a clear investment view for each inferred environment:</p>
+<ul>
+<li><strong>Regime 0: Resilient risk-on.</strong> Keep high equity exposure because SPY performed well, but retain a meaningful GLD sleeve because gold also had strong average returns in this state.</li>
+<li><strong>Regime 1: Policy-supported recovery.</strong> Lean most heavily into equities because this state showed strong equity trend evidence, positive SPY returns, and a more supportive policy backdrop.</li>
+<li><strong>Regime 2: Stress.</strong> Reduce SPY exposure and spread the defensive sleeve across TLT, GLD, and SHY. Long-duration Treasuries can help during growth shocks, but they may be less reliable when stress is driven by inflation or rising rates, so the defensive allocation is diversified.</li>
+</ul>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=bba3dea9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">REGIME_LABELS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s2">"Resilient risk-on"</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">"Policy-supported recovery"</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">"Stress"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">ASSET_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"SPY"</span><span class="p">,</span> <span class="s2">"TLT"</span><span class="p">,</span> <span class="s2">"GLD"</span><span class="p">,</span> <span class="s2">"SHY"</span><span class="p">]</span>
+
+<span class="c1"># These are policy weights, not fitted model parameters.</span>
+<span class="c1"># They are chosen before the backtest and should not be tuned on test-period returns.</span>
+<span class="n">regime_allocation_policy</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"regime_state"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">"regime_label"</span><span class="p">:</span> <span class="n">REGIME_LABELS</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">"SPY"</span><span class="p">:</span> <span class="mf">0.70</span><span class="p">,</span>
+            <span class="s2">"TLT"</span><span class="p">:</span> <span class="mf">0.10</span><span class="p">,</span>
+            <span class="s2">"GLD"</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+            <span class="s2">"SHY"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="s2">"allocation_rationale"</span><span class="p">:</span> <span class="s2">"High equity exposure with a gold sleeve, reflecting strong SPY and GLD returns with lower stress."</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">"regime_state"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">"regime_label"</span><span class="p">:</span> <span class="n">REGIME_LABELS</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">"SPY"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+            <span class="s2">"TLT"</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+            <span class="s2">"GLD"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="s2">"SHY"</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="s2">"allocation_rationale"</span><span class="p">:</span> <span class="s2">"Highest equity allocation, reflecting strong momentum and a policy-supported macro backdrop."</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">"regime_state"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">"regime_label"</span><span class="p">:</span> <span class="n">REGIME_LABELS</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="s2">"SPY"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+            <span class="s2">"TLT"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+            <span class="s2">"GLD"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+            <span class="s2">"SHY"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+            <span class="s2">"allocation_rationale"</span><span class="p">:</span> <span class="s2">"Lower equity exposure and diversified defensive allocation during high-volatility stress periods."</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Check that each regime portfolio is fully invested.</span>
+<span class="n">regime_allocation_policy</span><span class="p">[</span><span class="s2">"weight_sum"</span><span class="p">]</span> <span class="o">=</span> <span class="n">regime_allocation_policy</span><span class="p">[</span><span class="n">ASSET_COLUMNS</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">regime_allocation_policy</span><span class="p">[</span><span class="s2">"weight_sum"</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Each regime allocation must sum to 100%."</span><span class="p">)</span>
+
+<span class="n">REGIME_ALLOCATION_POLICY_CACHE</span> <span class="o">=</span> <span class="n">PROCESSED_DATA_DIR</span> <span class="o">/</span> <span class="s2">"regime_allocation_policy.csv"</span>
+<span class="n">regime_allocation_policy</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">REGIME_ALLOCATION_POLICY_CACHE</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">allocation_display</span> <span class="o">=</span> <span class="n">regime_allocation_policy</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">allocation_display</span><span class="p">[</span><span class="n">ASSET_COLUMNS</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"weight_sum"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">allocation_display</span><span class="p">[</span><span class="n">ASSET_COLUMNS</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"weight_sum"</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">allocation_display</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>regime_state</th>
+<th>regime_label</th>
+<th>SPY</th>
+<th>TLT</th>
+<th>GLD</th>
+<th>SHY</th>
+<th>allocation_rationale</th>
+<th>weight_sum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>0</td>
+<td>Resilient risk-on</td>
+<td>70.0000</td>
+<td>10.0000</td>
+<td>15.0000</td>
+<td>5.0000</td>
+<td>High equity exposure with a gold sleeve, refle...</td>
+<td>100.0000</td>
+</tr>
+<tr>
+<th>1</th>
+<td>1</td>
+<td>Policy-supported recovery</td>
+<td>75.0000</td>
+<td>15.0000</td>
+<td>5.0000</td>
+<td>5.0000</td>
+<td>Highest equity allocation, reflecting strong m...</td>
+<td>100.0000</td>
+</tr>
+<tr>
+<th>2</th>
+<td>2</td>
+<td>Stress</td>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>Lower equity exposure and diversified defensiv...</td>
+<td>100.0000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=55e14a24">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The allocation table is the main design object in this section. The most important thing to notice is that the stress regime does not simply move everything into TLT or cash. It reduces SPY exposure, but splits the defensive allocation across TLT, GLD, and SHY because different stress periods have different causes.</p>
+<p>This makes the rule more cautious than assuming one defensive asset always works. It also keeps the strategy easy to explain: increase risk exposure when the model identifies stronger environments, and reduce equity concentration when the model identifies stress.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d3c3757a">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Convert-regime-probabilities-into-portfolio-weights">Convert regime probabilities into portfolio weights<a class="anchor-link" href="#Convert-regime-probabilities-into-portfolio-weights">¶</a></h3><p>A useful feature of HMMs is that they produce probabilities, not only hard labels. That means the portfolio does not need to jump fully from one regime allocation to another.</p>
+<p>Instead, the strategy uses probability-weighted allocation:</p>
+<div class="highlight"><pre><span></span>Final allocation
+= P(Regime 0) * Regime 0 weights
++ P(Regime 1) * Regime 1 weights
++ P(Regime 2) * Regime 2 weights
+</pre></div>
+<p>For example, if the model is 60% confident in a risk-on regime and 40% confident in a stress regime, the portfolio becomes a blend of those two policies. This is more consistent with the probabilistic nature of the HMM than hard-switching entirely based on the most likely state.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=08ccea83">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">probability_columns</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s2">"state_0_probability"</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">"state_1_probability"</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">"state_2_probability"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">missing_probability_columns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">probability_columns</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">regime_probabilities</span><span class="o">.</span><span class="n">columns</span>
+<span class="p">]</span>
+
+<span class="k">if</span> <span class="n">missing_probability_columns</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Missing regime probability columns: </span><span class="si">{</span><span class="n">missing_probability_columns</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Arrange probability columns and regime weights in the same regime-state order.</span>
+<span class="n">regime_probability_matrix</span> <span class="o">=</span> <span class="n">regime_probabilities</span><span class="p">[</span>
+    <span class="p">[</span><span class="n">probability_columns</span><span class="p">[</span><span class="n">state</span><span class="p">]</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">probability_columns</span><span class="p">)]</span>
+<span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">regime_probability_matrix</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">probability_columns</span><span class="p">)</span>
+
+<span class="n">regime_weight_matrix</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">regime_allocation_policy</span>
+    <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"regime_state"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">probability_columns</span><span class="p">),</span> <span class="n">ASSET_COLUMNS</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Matrix multiplication applies the probability-weighted allocation formula month by month.</span>
+<span class="n">strategy_target_weights</span> <span class="o">=</span> <span class="n">regime_probability_matrix</span> <span class="o">@</span> <span class="n">regime_weight_matrix</span>
+<span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">ASSET_COLUMNS</span>
+
+<span class="c1"># Small floating-point errors can appear after matrix multiplication, so normalise the rows.</span>
+<span class="n">strategy_target_weights</span> <span class="o">=</span> <span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">div</span><span class="p">(</span>
+    <span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">strategy_target_weights</span><span class="p">[</span><span class="s2">"most_likely_state"</span><span class="p">]</span> <span class="o">=</span> <span class="n">regime_probabilities</span><span class="p">[</span><span class="s2">"most_likely_state"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">strategy_target_weights</span><span class="p">[</span><span class="s2">"regime_label"</span><span class="p">]</span> <span class="o">=</span> <span class="n">strategy_target_weights</span><span class="p">[</span><span class="s2">"most_likely_state"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">REGIME_LABELS</span><span class="p">)</span>
+<span class="n">strategy_target_weights</span><span class="p">[</span><span class="s2">"weight_sum"</span><span class="p">]</span> <span class="o">=</span> <span class="n">strategy_target_weights</span><span class="p">[</span><span class="n">ASSET_COLUMNS</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">strategy_target_weights</span><span class="p">[</span><span class="s2">"weight_sum"</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Monthly strategy target weights must sum to 100%."</span><span class="p">)</span>
+
+<span class="n">STRATEGY_TARGET_WEIGHTS_CACHE</span> <span class="o">=</span> <span class="n">PROCESSED_DATA_DIR</span> <span class="o">/</span> <span class="s2">"strategy_target_weights.csv"</span>
+<span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">STRATEGY_TARGET_WEIGHTS_CACHE</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="s2">"date"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Strategy target weights saved to: </span><span class="si">{</span><span class="n">STRATEGY_TARGET_WEIGHTS_CACHE</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">PROJECT_ROOT</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sample period: </span><span class="si">{</span><span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">head</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Strategy target weights saved to: data\processed\strategy_target_weights.csv
+Sample period: 2006-05-31 to 2026-05-31
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>SPY</th>
+<th>TLT</th>
+<th>GLD</th>
+<th>SHY</th>
+<th>most_likely_state</th>
+<th>regime_label</th>
+<th>weight_sum</th>
+</tr>
+<tr>
+<th>date</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>2006-05-31</th>
+<td>0.7000</td>
+<td>0.1000</td>
+<td>0.1500</td>
+<td>0.0500</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<th>2006-06-30</th>
+<td>0.7000</td>
+<td>0.1000</td>
+<td>0.1500</td>
+<td>0.0500</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<th>2006-07-31</th>
+<td>0.7000</td>
+<td>0.1000</td>
+<td>0.1500</td>
+<td>0.0500</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<th>2006-08-31</th>
+<td>0.7000</td>
+<td>0.1000</td>
+<td>0.1500</td>
+<td>0.0500</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<th>2006-09-30</th>
+<td>0.7000</td>
+<td>0.1000</td>
+<td>0.1500</td>
+<td>0.0500</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+<td>1.0000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=213c0a6b">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>This code converts the HMM probabilities into target portfolio weights. Each row is one month-end signal date. The weights shown here are target allocations, not realised strategy returns. In months where the model assigns almost all probability to one regime, the target weights will look exactly like that regime's base allocation. In more uncertain months, the weights become a blend across regimes.</p>
+<p>The later backtest should apply these signals with a one-month lag. In plain language, if the model observes data up to the end of March, the portfolio should only trade for April. That timing rule matters because it prevents the strategy from accidentally using information before an investor would have known it.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=406b8ac7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Inspect-representative-allocation-signals">Inspect representative allocation signals<a class="anchor-link" href="#Inspect-representative-allocation-signals">¶</a></h3><p>Before calculating performance, it is helpful to check whether the allocation rule behaves sensibly in familiar historical periods. This is a diagnostic step to confirm that the rule responds in the intended direction.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c22c01ae">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">representative_dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span>
+    <span class="s2">"2008-10-31"</span><span class="p">,</span>  <span class="c1"># Global Financial Crisis stress period</span>
+    <span class="s2">"2013-12-31"</span><span class="p">,</span>  <span class="c1"># Policy-supported recovery period</span>
+    <span class="s2">"2016-01-31"</span><span class="p">,</span>  <span class="c1"># Market stress around global growth and oil concerns</span>
+    <span class="s2">"2019-01-31"</span><span class="p">,</span>  <span class="c1"># Uncertain transition after late-2018 volatility</span>
+    <span class="s2">"2020-03-31"</span><span class="p">,</span>  <span class="c1"># COVID shock</span>
+<span class="p">])</span>
+
+<span class="n">available_representative_dates</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">date</span> <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">representative_dates</span>
+    <span class="k">if</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">index</span>
+<span class="p">]</span>
+
+<span class="n">representative_allocations</span> <span class="o">=</span> <span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">available_representative_dates</span><span class="p">,</span>
+    <span class="n">ASSET_COLUMNS</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"most_likely_state"</span><span class="p">,</span> <span class="s2">"regime_label"</span><span class="p">],</span>
+<span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">representative_allocations</span><span class="p">[</span><span class="n">ASSET_COLUMNS</span><span class="p">]</span> <span class="o">=</span> <span class="n">representative_allocations</span><span class="p">[</span><span class="n">ASSET_COLUMNS</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">representative_allocations</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>SPY</th>
+<th>TLT</th>
+<th>GLD</th>
+<th>SHY</th>
+<th>most_likely_state</th>
+<th>regime_label</th>
+</tr>
+<tr>
+<th>date</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>2008-10-31</th>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>2</td>
+<td>Stress</td>
+</tr>
+<tr>
+<th>2013-12-31</th>
+<td>75.0000</td>
+<td>15.0000</td>
+<td>5.0000</td>
+<td>5.0000</td>
+<td>1</td>
+<td>Policy-supported recovery</td>
+</tr>
+<tr>
+<th>2016-01-31</th>
+<td>26.6000</td>
+<td>24.7000</td>
+<td>24.4000</td>
+<td>24.4000</td>
+<td>2</td>
+<td>Stress</td>
+</tr>
+<tr>
+<th>2019-01-31</th>
+<td>47.6000</td>
+<td>17.5000</td>
+<td>20.0000</td>
+<td>14.9000</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+</tr>
+<tr>
+<th>2020-03-31</th>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>25.0000</td>
+<td>2</td>
+<td>Stress</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f2ed4eb6">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>The representative dates show the basic behaviour of the rule. Stress-heavy periods should generally show lower SPY exposure and higher defensive exposure. Recovery or resilient-risk periods should generally show higher SPY exposure.</p>
+<p>The January 2019 example is especially useful because the model was close to split between Regime 0 and Regime 2, so the final allocation is blended rather than a clean round-number regime portfolio.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3ed5d710">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Inspect-uncertain-regime-probabilities">Inspect uncertain regime probabilities<a class="anchor-link" href="#Inspect-uncertain-regime-probabilities">¶</a></h3><p>The previous table includes hand-picked historical dates. To see the probability-weighted rule more directly, we can also search for months where the HMM was least certain.</p>
+<p>To keep this diagnostic separate from later test-period evaluation, the search below only uses dates up to the end of the validation period.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=81a4216f">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">probability_display_columns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">probability_columns</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">probability_columns</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># Find months where the model's highest regime probability was lowest.</span>
+<span class="c1"># These are the months where probability-weighted allocation matters most.</span>
+<span class="n">uncertain_probability_window</span> <span class="o">=</span> <span class="n">regime_probabilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">regime_probabilities</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">VALIDATION_END</span><span class="p">,</span>
+    <span class="n">probability_display_columns</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"most_likely_state"</span><span class="p">],</span>
+<span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">uncertain_probability_window</span><span class="p">[</span><span class="s2">"max_regime_probability"</span><span class="p">]</span> <span class="o">=</span> <span class="n">uncertain_probability_window</span><span class="p">[</span>
+    <span class="n">probability_display_columns</span>
+<span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">uncertain_dates</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">uncertain_probability_window</span>
+    <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"max_regime_probability"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">index</span>
+<span class="p">)</span>
+
+<span class="n">uncertain_allocation_examples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">uncertain_dates</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">probability_columns</span><span class="p">):</span>
+    <span class="n">uncertain_allocation_examples</span><span class="p">[</span><span class="sa">f</span><span class="s2">"P(Regime </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">)"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">regime_probabilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">uncertain_dates</span><span class="p">,</span> <span class="n">probability_columns</span><span class="p">[</span><span class="n">state</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="p">)</span>
+
+<span class="k">for</span> <span class="n">asset</span> <span class="ow">in</span> <span class="n">ASSET_COLUMNS</span><span class="p">:</span>
+    <span class="n">uncertain_allocation_examples</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">asset</span><span class="si">}</span><span class="s2"> weight"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">uncertain_dates</span><span class="p">,</span> <span class="n">asset</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="p">)</span>
+
+<span class="n">uncertain_allocation_examples</span><span class="p">[</span><span class="s2">"most_likely_state"</span><span class="p">]</span> <span class="o">=</span> <span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">uncertain_dates</span><span class="p">,</span>
+    <span class="s2">"most_likely_state"</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">uncertain_allocation_examples</span><span class="p">[</span><span class="s2">"regime_label"</span><span class="p">]</span> <span class="o">=</span> <span class="n">strategy_target_weights</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">uncertain_dates</span><span class="p">,</span>
+    <span class="s2">"regime_label"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Show percentages so the blended allocations are easy to read.</span>
+<span class="n">display</span><span class="p">(</span><span class="n">uncertain_allocation_examples</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>P(Regime 0)</th>
+<th>P(Regime 1)</th>
+<th>P(Regime 2)</th>
+<th>SPY weight</th>
+<th>TLT weight</th>
+<th>GLD weight</th>
+<th>SHY weight</th>
+<th>most_likely_state</th>
+<th>regime_label</th>
+</tr>
+<tr>
+<th>date</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>2019-01-31</th>
+<td>50.3000</td>
+<td>0.0000</td>
+<td>49.7000</td>
+<td>47.6000</td>
+<td>17.5000</td>
+<td>20.0000</td>
+<td>14.9000</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+</tr>
+<tr>
+<th>2016-01-31</th>
+<td>0.0000</td>
+<td>3.1000</td>
+<td>96.9000</td>
+<td>26.6000</td>
+<td>24.7000</td>
+<td>24.4000</td>
+<td>24.4000</td>
+<td>2</td>
+<td>Stress</td>
+</tr>
+<tr>
+<th>2009-10-31</th>
+<td>0.0000</td>
+<td>98.6000</td>
+<td>1.4000</td>
+<td>74.3000</td>
+<td>15.1000</td>
+<td>5.3000</td>
+<td>5.3000</td>
+<td>1</td>
+<td>Policy-supported recovery</td>
+</tr>
+<tr>
+<th>2007-12-31</th>
+<td>99.3000</td>
+<td>0.0000</td>
+<td>0.7000</td>
+<td>69.7000</td>
+<td>10.1000</td>
+<td>15.1000</td>
+<td>5.1000</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+</tr>
+<tr>
+<th>2016-03-31</th>
+<td>99.3000</td>
+<td>0.0000</td>
+<td>0.7000</td>
+<td>69.7000</td>
+<td>10.1000</td>
+<td>15.1000</td>
+<td>5.1000</td>
+<td>0</td>
+<td>Resilient risk-on</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a5b771fb">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>This table shows why probability-weighting is useful. When the model is uncertain, the final portfolio is not forced into a single regime's allocation. For example, a month split between resilient risk-on and stress will produce a portfolio with less SPY than a pure risk-on month, but more SPY than a pure stress month.</p>
+<p>The purpose of this check is directional: before backtesting, the allocation should respond intuitively to both confident and uncertain regime estimates.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=79f3cb84">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="What-has-been-decided-in-Part-7">What has been decided in Part 7<a class="anchor-link" href="#What-has-been-decided-in-Part-7">¶</a></h3><p>Part 7 defines the bridge between regime detection and portfolio construction:</p>
+<ul>
+<li>The selected HMM remains the 3-state model from Part 5.</li>
+<li>The regime labels come from the evidence in Part 6.</li>
+<li>Each regime is mapped to a clear long-only allocation across SPY, TLT, GLD, and SHY.</li>
+<li>Monthly target weights are calculated using regime probabilities rather than hard switching.</li>
+<li>The allocation rule is saved locally for the next section.</li>
+</ul>
+<p>The next section can now evaluate the rule properly. That means applying a realistic signal lag, adding transaction costs, comparing against benchmarks, and checking whether the regime-aware allocation improves risk-adjusted performance without relying on hindsight.</p>
 </div>
 </div>
 </div>
