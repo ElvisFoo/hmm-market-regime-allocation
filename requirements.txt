@@ -6,3 +6,4 @@ jupyter
 nbformat
 scikit-learn
 hmmlearn
+matplotlib
